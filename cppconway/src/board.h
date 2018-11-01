@@ -29,6 +29,8 @@ namespace Conway
         int get(int x, int y) {
             return m_board[x+y*m_width];
         }
+
+        void show() const;
         
     private:
         std::unique_ptr<int> m_board;

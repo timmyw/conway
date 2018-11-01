@@ -1,5 +1,7 @@
 #include "board.h"
+
 #include <tuple>
+#include <iostream>
 
 void Conway::Board::generateRandom(int c)
 {
@@ -13,3 +15,12 @@ void Conway::Board::generateRandom(int c)
              
 }
 
+void Conway::Board::show() const
+{
+    for (int y = 0; y <= m_height; y++)
+    {
+        for (int x = 0; x <= m_width; x++)
+            std::cout << get(x,y);
+        std::cout << endl;
+    }
+}
