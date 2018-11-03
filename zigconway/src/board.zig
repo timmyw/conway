@@ -1,6 +1,6 @@
 /// A struct for storing a conway board
 
-const bb = []u8.{0} ** 10;
+const std = @import("std");
 
 pub const Board = struct. {
 
@@ -21,4 +21,6 @@ pub const Board = struct. {
 };
 
 pub fn displayBoard(board: Board) {
+    var f:File;
+    f = std.getStdOut();
 }
