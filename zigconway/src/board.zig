@@ -19,3 +19,6 @@ pub const Board = struct. {
         return b;
     }
 };
+
+pub fn displayBoard(board: Board) {
+}
