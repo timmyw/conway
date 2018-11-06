@@ -20,6 +20,10 @@ pub const Board = struct. {
     }
 };
 
+pub fn generateRandom(board: Board) {
+    
+}
+
 pub fn displayBoard(board: Board) {
     var f:File;
     f = std.getStdOut();

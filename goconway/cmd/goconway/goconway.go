@@ -11,6 +11,4 @@ func main() {
 	b := conway.NewBoard(20, 20)
 	b.GenerateRandom()
 	b.Display()
-	
-//	board := NewBoard()
 }

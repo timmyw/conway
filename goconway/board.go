@@ -50,7 +50,7 @@ func (b *Board) countForRow(i int, j int) int {
 	return cnt
 }
 
-func (b *Board) getNeighbours(i int, j int) int {
+func (b *Board) GetNeighbours(i int, j int) int {
 	cnt := 0
 
 	// Previous row
@@ -71,6 +71,17 @@ func (b *Board) getNeighbours(i int, j int) int {
 
 // Display will dump the current state of the board to stdout
 func (b *Board) Display() {
+	// fmt.Printf("%d by %d\n", b.height, b.width)
+	for i := 0; i < b.height; i++ {
+		for j := 0; j < b.width; j++ {
+			fmt.Printf("%d", b.cells[i*b.width+j])
+		}
+		fmt.Printf("\n")
+	}
+}
+
+// Display will dump the current state of the board to a string
+func (b *Board) Dump() {
 	// fmt.Printf("%d by %d\n", b.height, b.width)
 	for i := 0; i < b.height; i++ {
 		for j := 0; j < b.width; j++ {
