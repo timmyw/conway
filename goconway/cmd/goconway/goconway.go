@@ -11,4 +11,13 @@ func main() {
 	b := conway.NewBoard(20, 20)
 	b.GenerateRandom()
 	b.Display()
+
+	s := b.Dump()
+	fmt.Printf("%s", s)
+
+	b2 := conway.NewBoard(0, 0)
+	b2.Load(s)
+
+	fmt.Printf("Loaded:\n")
+	b2.Display()
 }

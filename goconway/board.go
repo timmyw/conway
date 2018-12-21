@@ -2,7 +2,10 @@ package goconway
 
 import (
 	"fmt"
+	"bytes"
 	"time"
+	"strings"
+	"strconv"
 	"math/rand"
 )
 
@@ -80,13 +83,35 @@ func (b *Board) Display() {
 	}
 }
 
-// Display will dump the current state of the board to a string
-func (b *Board) Dump() {
-	// fmt.Printf("%d by %d\n", b.height, b.width)
+// Dump will dump the current state of the board to a string
+func (b *Board) Dump() string {
+	var buffer bytes.Buffer
+
+	buffer.WriteString(fmt.Sprintf("%05d:%05d\n", b.height, b.width))
+	
 	for i := 0; i < b.height; i++ {
 		for j := 0; j < b.width; j++ {
-			fmt.Printf("%d", b.cells[i*b.width+j])
+			buffer.WriteString(fmt.Sprintf("%d", b.cells[i*b.width+j]))
 		}
-		fmt.Printf("\n")
+		buffer.WriteString(fmt.Sprintf("\n"))
+	}
+
+	return buffer.String()
+}
+
+// Load will load a board from the supplied string
+func (b *Board) Load(inp string) {
+	
+	s := strings.Split(inp, "\n")
+
+	sizes := strings.Split(s[0], ":")
+	height, _ := strconv.ParseInt(sizes[0], 10, 32)
+	width, _ := strconv.ParseInt(sizes[1], 10, 32)
+
+	b2 := NewBoard(int(height), int(width)) 
+	b = b2
+
+	rows := s[1..]
+	for line := range s[1..] {
 	}
 }
