@@ -21,6 +21,6 @@ void Conway::Board::show() const
     {
         for (int x = 0; x <= m_width; x++)
             std::cout << get(x,y);
-        std::cout << endl;
+        std::cout << std::endl;
     }
 }

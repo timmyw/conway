@@ -41,7 +41,11 @@ getBoardRow r b = (cells b) !! r
 -- | Set the rth row of a board
 setBoardRow :: Int -> BoardRow -> Board -> Board
 setBoardRow r newRow b =
-  Board { cells = (take r rows) ++ [newRow] ++ (drop (r+1) rows) }
+  if r >= 0 && r <= boardHeight
+  then 
+    Board { cells = (take r rows) ++ [newRow] ++ (drop (r+1) rows) }
+  else
+    error $ "Row " ++ (show r) ++ " out of range"
   where rows = cells b
 
 getRowCellValue :: Int -> BoardRow -> Integer
@@ -51,7 +55,10 @@ getRowCellValue x row = if x >=0 && x < boardWidth
 
 setRowCellValue :: Int -> Integer -> BoardRow -> BoardRow
 setRowCellValue x newVal row =
-  (take x row) ++ [newVal] ++ (drop (x+1) row)
+  if x >= 0 && x <= boardWidth
+  then
+    (take x row) ++ [newVal] ++ (drop (x+1) row)
+  else error $ "Width " ++ (show x) ++ " too large"
 
 getBoardCellValue :: (Int, Int) -> Board -> Integer
 getBoardCellValue (x,y) b = getRowCellValue x (getBoardRow y b)
@@ -61,8 +68,8 @@ setBoardCellValue (x,y) val b = setBoardRow y newRow b
   where newRow = setRowCellValue x val (getBoardRow y b)
   
 createEmptyBoard :: Board
-createEmptyBoard = Board { cells = replicate boardHeight mkRow }
-  where mkRow = replicate boardWidth 0
+createEmptyBoard = Board { cells = replicate (boardHeight+1) mkRow }
+  where mkRow = replicate (boardWidth+1) 0
 
 createRandomBoard :: Int -> IO Board
 createRandomBoard cnt = do

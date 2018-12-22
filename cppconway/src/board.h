@@ -14,7 +14,7 @@ namespace Conway
     public:
 
         Board(int width, int height) : m_board(std::make_unique<int>(width * height)), m_width(width), m_height(height) {
-            memset(m_board.get(), 0, width * height);
+            ::memset(m_board.get(), 0, width * height);
             // for (int x = 0; x < m_width; x++)
             //     for (int y = 0; y < m_height; y++)
             //         m_board[x][y] = 0;
