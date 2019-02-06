@@ -5,5 +5,9 @@ import Conway.Board
 
 displayBoard :: Board -> IO ()
 displayBoard b = do
+  horizRow
   mapM_ printRow (cells b)
-  where printRow row = putStrLn $ concat $ map show row 
+  horizRow
+  where printRow row = putStrLn $ "|" ++ concatMap show row ++ "|"
+        horizRow = putStrLn $ "+" ++ replicate boardWidth '-' ++ "+"
+
