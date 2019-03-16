@@ -71,7 +71,11 @@ getBoardCellValue (x,y) b = getRowCellValue x (getBoardRow y b)
 setBoardCellValue :: Integer -> (Int, Int) -> Board -> Board
 setBoardCellValue val (x,y) b = setBoardRow y newRow b
   where newRow = setRowCellValue x val (getBoardRow y b)
-  
+
+getCellNeighbourCount :: (Int, Int) -> Board -> Int
+getCellNeighbourCount (x,y) board =
+  undefined
+
 createEmptyBoard :: Board
 createEmptyBoard = Board { cells = replicate boardHeight mkRow }
   where mkRow = replicate boardWidth 0
@@ -87,12 +91,13 @@ createRandomBoard cnt = do
   where b = createEmptyBoard 
         setCell  = setBoardCellValue 1
 
--- iterate :: Board -> Board
+boardIterate :: Board  -> Board
 boardIterate board =
-  setBoardRow 0 (getNewRow 0) board
-  -- map (\j -> setBoardRow j (getNewRow j) board) [0 .. boardHeight-1]
-  where getNewRow i = iterateRow $ getBoardRow i board
+  foldr (\(x,y) b -> processCell b x y) createEmptyBoard coords
+  where coords = zip [0..boardHeight-1] [0..boardWidth-1]
 
-iterateRow :: BoardRow -> BoardRow
-iterateRow row = row
-
+processCell :: Board -> Int -> Int -> Board
+processCell b x y = setBoardCellValue newValue (x, y) b
+  where curValue = getBoardCellValue (x, y) b
+        newValue = 0
+        neightCount = getCellNeighbourCount (x,y) b

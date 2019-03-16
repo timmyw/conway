@@ -29,3 +29,6 @@ executable conway
                      , text
                      , cmdargs
                      , conway
+
+                     , ansi-terminal
+                     , unix
