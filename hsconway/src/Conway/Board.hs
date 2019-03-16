@@ -72,9 +72,16 @@ setBoardCellValue :: Integer -> (Int, Int) -> Board -> Board
 setBoardCellValue val (x,y) b = setBoardRow y newRow b
   where newRow = setRowCellValue x val (getBoardRow y b)
 
-getCellNeighbourCount :: (Int, Int) -> Board -> Int
-getCellNeighbourCount (x,y) board =
-  undefined
+getCellNeighbourCount :: (Int, Int) -> Board -> Integer
+getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
+  where rowAbove = if y == 0
+                   then 0
+                   else leftOne (y-1) + getBoardCellValue (x, y-1) board + rightOne (y-1)
+        rowBelow = if y == boardWidth
+                   then 0
+                   else leftOne (y+1) + getBoardCellValue (x, y+1) board + rightOne (y+1)
+        leftOne r = if x == 0 then 0 else getBoardCellValue (x-1, r) board
+        rightOne r = if x == boardWidth then 0 else getBoardCellValue (x+1, r) board
 
 createEmptyBoard :: Board
 createEmptyBoard = Board { cells = replicate boardHeight mkRow }
@@ -98,6 +105,31 @@ boardIterate board =
 
 processCell :: Board -> Int -> Int -> Board
 processCell b x y = setBoardCellValue newValue (x, y) b
-  where curValue = getBoardCellValue (x, y) b
-        newValue = 0
-        neightCount = getCellNeighbourCount (x,y) b
+  where curValue :: Integer
+        curValue = getBoardCellValue (x, y) b
+        newValue :: Integer
+        newValue = determineCellFuture curValue neighCount
+        neighCount :: Integer
+        neighCount = getCellNeighbourCount (x,y) b
+
+determineCellFuture :: Integer -> Integer -> Integer
+determineCellFuture 1 0 = 0
+determineCellFuture 1 1 = 0
+determineCellFuture 1 2 = 1
+determineCellFuture 1 3 = 1
+determineCellFuture 1 4 = 0
+determineCellFuture 1 5 = 0
+determineCellFuture 1 6 = 0
+determineCellFuture 0 3 = 1
+               
+cellOutcomes :: [(Int, Int, Int)]
+cellOutcomes = [ (1, 0, 0)
+               , (1, 1, 0)
+               , (1, 2, 1)
+               , (1, 3, 1)
+               , (1, 4, 0)
+               , (1, 5, 0)
+               , (1, 6, 0)
+               , (0, 3, 1)
+               ]
+  

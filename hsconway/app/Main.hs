@@ -38,25 +38,27 @@ prepScreen = do
   clearScreen
   setCursorPosition 0 0
   
-doIterations :: Board -> Int -> Options -> IO ()
-doIterations board count opts =
-  doIterations' board count 0
+doIterations :: Board -> Board -> Int -> Options -> IO ()
+doIterations origBoard board count opts =
+  doIterations' board 0
   where
-    doIterations' board maxIter cur =
-          if cur > maxIter
+    doIterations' board cur =
+          if cur > count
           then
             return ()
           else
             do
-              prepScreen
-              setSGR [SetColor Foreground Vivid Red]
-              putStrLn $ "Iteration " ++ show cur
-              setSGR [Reset]
-              setSGR [SetColor Foreground Vivid Blue]
+              showTitle cur
               let board2 = boardIterate board
               displayBoard board2
               Control.Concurrent.threadDelay (getDelay opts)
-              doIterations' board2 count (cur + 1)
+              doIterations' board2  (cur + 1)
+    showTitle cur = do
+      prepScreen
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn $ "Iteration " ++ show cur
+      setSGR [Reset]
+      setSGR [SetColor Foreground Vivid Blue]
 
 main :: IO ()
 main = do
@@ -69,4 +71,4 @@ main = do
   displayBoard board
   Control.Concurrent.threadDelay 1000000
   -- print =<< cmdArgs (options)
-  doIterations board its opts
+  doIterations board board its opts
