@@ -1,12 +1,26 @@
+{-|
+Module      : Conway.Board
+Description : Board storage and manipulation
+Copyright   : (c) Timmy Whelan, 2018-9
+License     : BSD3
+Maintainer  : tim@zipt.co
+Stability   : provisional
+
+Provides storage types for a Conway board, with accessors.  Also
+provides the iteration and rule application functions.
+-}
 module Conway.Board
   (
     Board(..)
-    
+
+    -- * Board generation
   , createEmptyBoard
   , createRandomBoard
 
+  -- * Conway Iteration
   , boardIterate
-  
+
+  -- * Constants
   , boardWidth
   , boardHeight
   )
@@ -16,19 +30,22 @@ module Conway.Board
 import Data.List
 import System.Random
 
+-- | The width of any generation or handled boards
 boardWidth :: Int
 boardWidth = 20
 
+-- | The height of any generation or handled boards
 boardHeight :: Int
 boardHeight = 20
 
-{-
+
+-- | Stores a single row of the Board
+type BoardRow = [Integer]
+
+{- |
 A board is a list of list of ints.  Each int stores the state of the
 cell.
 -}
-
-type BoardRow = [Integer]
-
 newtype Board = Board {
                    cells :: [BoardRow]
                    }
@@ -83,11 +100,16 @@ getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
         leftOne r = if x == 0 then 0 else getBoardCellValue (x-1, r) board
         rightOne r = if x == boardWidth then 0 else getBoardCellValue (x+1, r) board
 
+-- | Create an empty board (full sized but all cell statuses are
+-- 'empty')
 createEmptyBoard :: Board
 createEmptyBoard = Board { cells = replicate boardHeight mkRow }
   where mkRow = replicate boardWidth 0
 
-createRandomBoard :: Int -> IO Board
+-- | Creates a randomly generated board.  Works by generating a list
+-- of random coords, and sets those to be populated.
+createRandomBoard :: Int         -- ^ The number of cells to populate
+                  -> IO Board    -- ^ The generated board
 createRandomBoard cnt = do
   g <- getStdGen
   let poss  = take (cnt*2) (randomRs (0, boardWidth-1) g)
@@ -98,7 +120,9 @@ createRandomBoard cnt = do
   where b = createEmptyBoard 
         setCell  = setBoardCellValue 1
 
-boardIterate :: Board  -> Board
+-- | Runs an interation over the supplied board.  Each cell is evaluated and has the Conway rules applied to it
+boardIterate :: Board            -- ^ The starting state of the board
+             -> Board            -- ^ The board after one complete iteration
 boardIterate board =
   foldr (\(x,y) b -> processCell b x y) createEmptyBoard coords
   where coords = zip [0..boardHeight-1] [0..boardWidth-1]
