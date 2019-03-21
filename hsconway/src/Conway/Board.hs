@@ -19,6 +19,12 @@ module Conway.Board
 
   -- * Conway Iteration
   , boardIterate
+  , determineCellFuture
+
+  -- * Utility functions
+  , getCellNeighbourCount
+  , getBoardCellValue
+  , setBoardCellValue
 
   -- * Constants
   , boardWidth
@@ -94,11 +100,11 @@ getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
   where rowAbove = if y == 0
                    then 0
                    else leftOne (y-1) + getBoardCellValue (x, y-1) board + rightOne (y-1)
-        rowBelow = if y == boardWidth
+        rowBelow = if y == boardWidth-1
                    then 0
                    else leftOne (y+1) + getBoardCellValue (x, y+1) board + rightOne (y+1)
         leftOne r = if x == 0 then 0 else getBoardCellValue (x-1, r) board
-        rightOne r = if x == boardWidth then 0 else getBoardCellValue (x+1, r) board
+        rightOne r = if x == boardWidth-1 then 0 else getBoardCellValue (x+1, r) board
 
 -- | Create an empty board (full sized but all cell statuses are
 -- 'empty')
@@ -120,23 +126,27 @@ createRandomBoard cnt = do
   where b = createEmptyBoard 
         setCell  = setBoardCellValue 1
 
--- | Runs an interation over the supplied board.  Each cell is evaluated and has the Conway rules applied to it
+-- | Runs an interation over the supplied board.  Each cell is
+-- evaluated and has the Conway rules applied to it
 boardIterate :: Board            -- ^ The starting state of the board
              -> Board            -- ^ The board after one complete iteration
-boardIterate board =
-  foldr (\(x,y) b -> processCell b x y) createEmptyBoard coords
+boardIterate board = 
+  foldr (\(x,y) b -> processCell b x y) board coords
   where coords = zip [0..boardHeight-1] [0..boardWidth-1]
 
-processCell :: Board -> Int -> Int -> Board
-processCell b x y = setBoardCellValue newValue (x, y) b
-  where curValue :: Integer
-        curValue = getBoardCellValue (x, y) b
-        newValue :: Integer
-        newValue = determineCellFuture curValue neighCount
-        neighCount :: Integer
-        neighCount = getCellNeighbourCount (x,y) b
+-- | Processes a single cell.
+processCell :: Board             -- ^ The original board
+            -> Int
+            -> Int
+            -> Board
+processCell buildBoard x y = setBoardCellValue newValue (x, y) buildBoard
+  where curValue   = getBoardCellValue (x, y) buildBoard
+        newValue   = determineCellFuture curValue neighbourCount
+        neighbourCount = getCellNeighbourCount (x,y) buildBoard
 
-determineCellFuture :: Integer -> Integer -> Integer
+determineCellFuture :: Integer   -- ^ Current status
+                    -> Integer   -- ^ Neighbour count
+                    -> Integer   -- ^ New status
 determineCellFuture 1 0 = 0
 determineCellFuture 1 1 = 0
 determineCellFuture 1 2 = 1
@@ -145,15 +155,5 @@ determineCellFuture 1 4 = 0
 determineCellFuture 1 5 = 0
 determineCellFuture 1 6 = 0
 determineCellFuture 0 3 = 1
-               
-cellOutcomes :: [(Int, Int, Int)]
-cellOutcomes = [ (1, 0, 0)
-               , (1, 1, 0)
-               , (1, 2, 1)
-               , (1, 3, 1)
-               , (1, 4, 0)
-               , (1, 5, 0)
-               , (1, 6, 0)
-               , (0, 3, 1)
-               ]
-  
+determineCellFuture _ _ = 0
+

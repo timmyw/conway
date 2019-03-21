@@ -5,7 +5,7 @@ where
 
 import Conway.Board
 import Conway.BoardDisplay
-import Data.Text as T
+--import qualified Data.Text as T
 import System.Console.ANSI
 import System.Console.CmdArgs
 import Control.Concurrent
@@ -17,7 +17,8 @@ data Options = Options {
   , delay :: Int
   }
   deriving (Show, Data, Typeable)
-  
+
+options :: Options
 options = Options {
   config = def &= help "Specify a CONFIG file" &= typ "CONFIG"
   , starting = 50 &= help "COUNT of many cells are alive at start" &= typ "COUNT"
@@ -38,23 +39,24 @@ prepScreen = do
   clearScreen
   setCursorPosition 0 0
   
-doIterations :: Board -> Board -> Int -> Options -> IO ()
-doIterations origBoard board count opts =
-  doIterations' board 0
+doIterations :: Board -> Int -> Options -> IO ()
+doIterations startBoard iterCount opts = do
+  doIterations' startBoard 0
   where
     doIterations' board cur =
-          if cur > count
+          if cur > iterCount
           then
             return ()
           else
             do
               showTitle cur
+              displayBoard board
               let board2 = boardIterate board
               displayBoard board2
               Control.Concurrent.threadDelay (getDelay opts)
               doIterations' board2  (cur + 1)
     showTitle cur = do
-      prepScreen
+      --prepScreen
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Iteration " ++ show cur
       setSGR [Reset]
@@ -69,6 +71,24 @@ main = do
   putStrLn $ "Running " ++ show its ++ " iterations"
   board <- createRandomBoard $ starting opts
   displayBoard board
-  Control.Concurrent.threadDelay 1000000
+  Control.Concurrent.threadDelay 10000
   -- print =<< cmdArgs (options)
-  doIterations board board its opts
+  doIterations board its opts
+
+testDriver :: IO ()
+testDriver = do
+  let board' = setBoardCellValue 1 (1,1) (setBoardCellValue 1 (0,2) createEmptyBoard) 
+  let board = setBoardCellValue 1 (2,2) board'
+  displayBoard board
+  let c = map (\x -> getCellNeighbourCount (x, 2) board) [0..19]
+  putStrLn $ "neighcount:" ++ show c
+  let (x,y) = (0,2)
+  putStrLn $ "coords:" ++ (show (x,y))
+  putStrLn $ "cur status:" ++ show (getBoardCellValue (x,y) board)
+  putStrLn $ "neighcount:" ++ show (getCellNeighbourCount (x,y) board)
+  putStrLn $ "new status:" ++ show (determineCellFuture (getBoardCellValue (x,y) board)  (getCellNeighbourCount (x,y) board))
+
+  let board2 = setBoardCellValue (determineCellFuture (getBoardCellValue (x,y) board)  (getCellNeighbourCount (x,y) board))
+        (x,y)
+        board
+  displayBoard board2
