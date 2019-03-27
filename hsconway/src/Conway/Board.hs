@@ -131,8 +131,9 @@ createRandomBoard cnt = do
 boardIterate :: Board            -- ^ The starting state of the board
              -> Board            -- ^ The board after one complete iteration
 boardIterate board = 
-  foldr (\(x,y) b -> processCell b x y) board coords
+  foldr processCell' board coords
   where coords = zip [0..boardHeight-1] [0..boardWidth-1]
+        processCell' (x,y) b = processCell b x y
 
 -- | Processes a single cell.
 processCell :: Board             -- ^ The original board

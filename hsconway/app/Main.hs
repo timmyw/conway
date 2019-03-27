@@ -40,7 +40,7 @@ prepScreen = do
   setCursorPosition 0 0
   
 doIterations :: Board -> Int -> Options -> IO ()
-doIterations startBoard iterCount opts = do
+doIterations startBoard iterCount opts =
   doIterations' startBoard 0
   where
     doIterations' board cur =
@@ -75,15 +75,15 @@ main = do
   -- print =<< cmdArgs (options)
   doIterations board its opts
 
-testDriver :: IO ()
-testDriver = do
+main' :: IO ()
+main' = do
   let board' = setBoardCellValue 1 (1,1) (setBoardCellValue 1 (0,2) createEmptyBoard) 
   let board = setBoardCellValue 1 (2,2) board'
   displayBoard board
   let c = map (\x -> getCellNeighbourCount (x, 2) board) [0..19]
   putStrLn $ "neighcount:" ++ show c
   let (x,y) = (0,2)
-  putStrLn $ "coords:" ++ (show (x,y))
+  putStrLn $ "coords:" ++ show (x,y)
   putStrLn $ "cur status:" ++ show (getBoardCellValue (x,y) board)
   putStrLn $ "neighcount:" ++ show (getCellNeighbourCount (x,y) board)
   putStrLn $ "new status:" ++ show (determineCellFuture (getBoardCellValue (x,y) board)  (getCellNeighbourCount (x,y) board))
