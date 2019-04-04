@@ -50,13 +50,13 @@ doIterations startBoard iterCount opts =
           else
             do
               showTitle cur
-              displayBoard board
+              -- displayBoard board
               let board2 = boardIterate board
-              displayBoard board2
+              displayBoards board board2
               Control.Concurrent.threadDelay (getDelay opts)
               doIterations' board2  (cur + 1)
     showTitle cur = do
-      --prepScreen
+      prepScreen
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Iteration " ++ show cur
       setSGR [Reset]

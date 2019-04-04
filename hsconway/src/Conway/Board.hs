@@ -132,8 +132,13 @@ boardIterate :: Board            -- ^ The starting state of the board
              -> Board            -- ^ The board after one complete iteration
 boardIterate board = 
   foldr processCell' board coords
-  where coords = zip [0..boardHeight-1] [0..boardWidth-1]
+  where coords = createBoardCoords
         processCell' (x,y) b = processCell b x y
+
+createBoardCoords :: [(Int, Int)]
+createBoardCoords = foldl (\acc y -> acc ++ makeRow y) [] [0..boardHeight-1]
+  where
+    makeRow y = foldl (\acc x -> acc ++ [(x,y)])  [] [0..boardWidth-1]
 
 -- | Processes a single cell.
 processCell :: Board             -- ^ The original board
