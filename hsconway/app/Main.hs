@@ -9,6 +9,8 @@ import Conway.BoardDisplay
 import System.Console.ANSI
 import System.Console.CmdArgs
 import Control.Concurrent
+import Data.Time
+-- import System.Locale
 
 data Options = Options {
   config :: String
@@ -62,6 +64,12 @@ doIterations startBoard iterCount opts =
       setSGR [Reset]
       setSGR [SetColor Foreground Vivid Blue]
 
+getOutputFilename :: IO String
+getOutputFilename = do
+  t <- getZonedTime
+--  return $ formatTime defaultTimeLocale "%Y%m%d%H%S.conway" t
+  return $ formatTime defaultTimeLocale "001.json" t
+  
 main :: IO ()
 main = do
   prepScreen
@@ -69,7 +77,9 @@ main = do
   let its = iterations opts
   setTitle $ "conway: Running " ++ show its ++ " iterations"
   putStrLn $ "Running " ++ show its ++ " iterations"
+  outputPath <- getOutputFilename
   board <- createRandomBoard $ starting opts
+  saveBoard board outputPath
   displayBoard board
   Control.Concurrent.threadDelay 10000
   -- print =<< cmdArgs (options)

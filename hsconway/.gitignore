@@ -22,3 +22,4 @@ cabal.project.local~
 .ghc.environment.*
 *_flymake.hs
 conway.cabal
+001.json

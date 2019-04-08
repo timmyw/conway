@@ -28,6 +28,8 @@ library:
     - Conway.BoardDisplay
   dependencies:
     - random
+    - aeson
+    - bytestring
     
 executables:
   conway:
@@ -43,7 +45,8 @@ executables:
     - cmdargs
     - ansi-terminal
     - unix
-
+    - time
+    - old-locale
 
 tests:
   conway-test:

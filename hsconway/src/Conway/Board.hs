@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 {-|
 Module      : Conway.Board
 Description : Board storage and manipulation
@@ -17,7 +19,12 @@ module Conway.Board
   , createEmptyBoard
   , createRandomBoard
 
-  -- * Conway Iteration
+    -- * Board management
+  , saveBoardJson
+  , saveBoard
+  , loadBoard
+  
+    -- * Conway Iteration
   , boardIterate
   , determineCellFuture
 
@@ -33,8 +40,11 @@ module Conway.Board
   
   where
 
-import Data.List
-import System.Random
+import           Data.Aeson
+import qualified Data.ByteString.Lazy.Char8 as BS
+import           Data.List
+import           System.IO
+import           System.Random
 
 -- | The width of any generation or handled boards
 boardWidth :: Int
@@ -44,6 +54,9 @@ boardWidth = 20
 boardHeight :: Int
 boardHeight = 20
 
+-- | Board structure/layout version
+boardLayoutVersion :: Int
+boardLayoutVersion = 2
 
 -- | Stores a single row of the Board
 type BoardRow = [Integer]
@@ -55,6 +68,15 @@ cell.
 newtype Board = Board {
                    cells :: [BoardRow]
                    }
+
+instance ToJSON Board where
+    -- this generates a Value
+    toJSON (Board board) =
+        object ["board" .= object
+                [ "width" .= boardWidth, "height" .= boardHeight]
+               , "version" .= boardLayoutVersion
+               , "rows" .= board
+               ]
 
 showRow :: BoardRow -> String
 showRow = concatMap show
@@ -126,6 +148,26 @@ createRandomBoard cnt = do
   where b = createEmptyBoard 
         setCell  = setBoardCellValue 1
 
+-- | Save the board in JSON format to the specified filename
+saveBoardJson :: Board               -- ^ The board to save
+              -> String              -- ^ File path to save the board to
+              -> IO ()
+saveBoardJson board filePath = do
+  writeFile filePath $ BS.unpack $ encode board
+
+
+-- | Save the supplied board to the specified file
+saveBoard :: Board
+          -> String
+          -> IO ()
+saveBoard board filePath = do
+  withFile filePath WriteMode (\h -> do
+                                  -- mapM_ hPutStrLn $ 
+                              )
+
+loadBoard :: String -> IO Board
+loadBoard = undefined
+
 -- | Runs an interation over the supplied board.  Each cell is
 -- evaluated and has the Conway rules applied to it
 boardIterate :: Board            -- ^ The starting state of the board
@@ -136,9 +178,9 @@ boardIterate board =
         processCell' (x,y) b = processCell b x y
 
 createBoardCoords :: [(Int, Int)]
-createBoardCoords = foldl (\acc y -> acc ++ makeRow y) [] [0..boardHeight-1]
+createBoardCoords = Data.List.foldl (\acc y -> acc ++ makeRow y) [] [0..boardHeight-1]
   where
-    makeRow y = foldl (\acc x -> acc ++ [(x,y)])  [] [0..boardWidth-1]
+    makeRow y = Data.List.foldl (\acc x -> acc ++ [(x,y)])  [] [0..boardWidth-1]
 
 -- | Processes a single cell.
 processCell :: Board             -- ^ The original board
