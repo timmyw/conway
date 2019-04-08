@@ -13,11 +13,13 @@ module Conway.BoardDisplay
     -- * Board display functions
     displayBoard
   , displayBoards
+
   )
 
   where
 
 import Conway.Board
+import Conway.BoardIO
 
 -- | Display the supplied board to stdout.
 displayBoard :: Board            -- ^ The board to be displayed
@@ -26,8 +28,8 @@ displayBoard b = do
   horizRow
   mapM_ printRow (cells b)
   horizRow
-  where printRow row = putStrLn $ "|" ++ concatMap show row ++ "|"
-        horizRow = putStrLn $ "+" ++ replicate boardWidth '-' ++ "+"
+  where printRow row = putStrLn $ mkRowString row
+        horizRow = putStrLn mkHorizRow
 
 -- | Display two boards side by side
 displayBoards :: Board
@@ -38,10 +40,8 @@ displayBoards b1 b2 = do
   mapM_ printRows $ zip (cells b1) (cells b2)
   horizRow
   where
-    printRows (r1, r2) = putStrLn $ (showRow r1) ++ separator ++ (showRow r2)
-    showRow row = "|" ++ concatMap tr row ++ "|"
-    horizRow = putStrLn $ topRow ++ separator ++ topRow
+    printRows (r1, r2) = putStrLn $ (mkRowString r1) ++ separator ++ (mkRowString r2)
+    horizRow = putStrLn mkHorizRow
     topRow =  "+" ++ replicate boardWidth '-' ++ "+"
     separator = "   --   "
-    tr 0 = " "
-    tr 1 = "+"
+

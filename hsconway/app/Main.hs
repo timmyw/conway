@@ -4,13 +4,12 @@ module Main
 where
 
 import Conway.Board
+import Conway.BoardIO
 import Conway.BoardDisplay
---import qualified Data.Text as T
 import System.Console.ANSI
 import System.Console.CmdArgs
 import Control.Concurrent
 import Data.Time
--- import System.Locale
 
 data Options = Options {
   config :: String
@@ -68,7 +67,7 @@ getOutputFilename :: IO String
 getOutputFilename = do
   t <- getZonedTime
 --  return $ formatTime defaultTimeLocale "%Y%m%d%H%S.conway" t
-  return $ formatTime defaultTimeLocale "001.json" t
+  return $ formatTime defaultTimeLocale "001.conway" t
   
 main :: IO ()
 main = do

@@ -25,6 +25,7 @@ library:
   source-dirs: src
   exposed-modules:
     - Conway.Board
+    - Conway.BoardIO
     - Conway.BoardDisplay
   dependencies:
     - random

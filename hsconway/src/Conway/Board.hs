@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 {-|
 Module      : Conway.Board
 Description : Board storage and manipulation
@@ -13,17 +11,15 @@ provides the iteration and rule application functions.
 -}
 module Conway.Board
   (
+    -- * Types
+    
     Board(..)
-
+  , BoardRow(..)
+  
     -- * Board generation
   , createEmptyBoard
   , createRandomBoard
 
-    -- * Board management
-  , saveBoardJson
-  , saveBoard
-  , loadBoard
-  
     -- * Conway Iteration
   , boardIterate
   , determineCellFuture
@@ -40,10 +36,7 @@ module Conway.Board
   
   where
 
-import           Data.Aeson
-import qualified Data.ByteString.Lazy.Char8 as BS
 import           Data.List
-import           System.IO
 import           System.Random
 
 -- | The width of any generation or handled boards
@@ -53,10 +46,6 @@ boardWidth = 20
 -- | The height of any generation or handled boards
 boardHeight :: Int
 boardHeight = 20
-
--- | Board structure/layout version
-boardLayoutVersion :: Int
-boardLayoutVersion = 2
 
 -- | Stores a single row of the Board
 type BoardRow = [Integer]
@@ -68,15 +57,6 @@ cell.
 newtype Board = Board {
                    cells :: [BoardRow]
                    }
-
-instance ToJSON Board where
-    -- this generates a Value
-    toJSON (Board board) =
-        object ["board" .= object
-                [ "width" .= boardWidth, "height" .= boardHeight]
-               , "version" .= boardLayoutVersion
-               , "rows" .= board
-               ]
 
 showRow :: BoardRow -> String
 showRow = concatMap show
@@ -147,26 +127,6 @@ createRandomBoard cnt = do
   return r
   where b = createEmptyBoard 
         setCell  = setBoardCellValue 1
-
--- | Save the board in JSON format to the specified filename
-saveBoardJson :: Board               -- ^ The board to save
-              -> String              -- ^ File path to save the board to
-              -> IO ()
-saveBoardJson board filePath = do
-  writeFile filePath $ BS.unpack $ encode board
-
-
--- | Save the supplied board to the specified file
-saveBoard :: Board
-          -> String
-          -> IO ()
-saveBoard board filePath = do
-  withFile filePath WriteMode (\h -> do
-                                  -- mapM_ hPutStrLn $ 
-                              )
-
-loadBoard :: String -> IO Board
-loadBoard = undefined
 
 -- | Runs an interation over the supplied board.  Each cell is
 -- evaluated and has the Conway rules applied to it

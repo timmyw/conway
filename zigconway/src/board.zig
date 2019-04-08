@@ -2,7 +2,7 @@
 
 const std = @import("std");
 
-pub const Board = struct. {
+pub const Board = struct {
 
     const height = 20;
     const width = 20;
@@ -12,8 +12,8 @@ pub const Board = struct. {
     cells:[boardSize]u8,
 
     pub fn init() Board {
-        var b = Board.{
-            .cells = []u8.{0} ** boardSize
+        var b = Board{
+            .cells = []u8{0} ** boardSize
         };
 
         return b;
