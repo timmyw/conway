@@ -41,7 +41,7 @@ displayBoards b1 b2 = do
   horizRow
   where
     printRows (r1, r2) = putStrLn $ (mkRowString r1) ++ separator ++ (mkRowString r2)
-    horizRow = putStrLn mkHorizRow
+    horizRow = putStrLn $ mkHorizRow ++ separator ++ mkHorizRow
     topRow =  "+" ++ replicate boardWidth '-' ++ "+"
     separator = "   --   "
 
