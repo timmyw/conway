@@ -16,6 +16,7 @@ data Options = Options {
   , starting :: Int
   , iterations :: Int
   , delay :: Int
+  , boardFile :: String
   }
   deriving (Show, Data, Typeable)
 
@@ -25,6 +26,7 @@ options = Options {
   , starting = 50 &= help "COUNT of many cells are alive at start" &= typ "COUNT"
   , iterations = 100 &= help "COUNT of how many times to run" &= typ "COUNT"
   , delay = 1000 &= help "COUNT of miliseconds between iterations" &= typ "COUNT"
+  , boardFile = "" &= help "FILE to load instead of a random board" &= typ "FILE"
   }
   &= program "conway"
   &= summary "Play Conway's game of life"
@@ -51,7 +53,6 @@ doIterations startBoard iterCount opts =
           else
             do
               showTitle cur
-              -- displayBoard board
               let board2 = boardIterate board
               displayBoards board board2
               Control.Concurrent.threadDelay (getDelay opts)
@@ -76,12 +77,15 @@ main = do
   let its = iterations opts
   setTitle $ "conway: Running " ++ show its ++ " iterations"
   putStrLn $ "Running " ++ show its ++ " iterations"
-  outputPath <- getOutputFilename
-  board <- createRandomBoard $ starting opts
-  saveBoard board outputPath
+  board <- if boardFile opts == ""
+          then do outputPath <- getOutputFilename
+                  b <- createRandomBoard $ starting opts
+                  saveBoard b outputPath
+                  return b
+          else do putStrLn $ "Loading board from " ++ boardFile opts
+                  loadBoard $ boardFile opts
   displayBoard board
   Control.Concurrent.threadDelay 10000
-  -- print =<< cmdArgs (options)
   doIterations board its opts
 
 main' :: IO ()
