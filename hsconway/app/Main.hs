@@ -90,12 +90,11 @@ main = do
 
 main' :: IO ()
 main' = do
-  let board' = setBoardCellValue 1 (1,1) (setBoardCellValue 1 (0,2) createEmptyBoard) 
-  let board = setBoardCellValue 1 (2,2) board'
+  board <- loadBoard "patterns/blinker.conway"
   displayBoard board
-  let c = map (\x -> getCellNeighbourCount (x, 2) board) [0..19]
+  let c = map (\x -> getCellNeighbourCount (x, 1) board) [0..boardWidth-1]
   putStrLn $ "neighcount:" ++ show c
-  let (x,y) = (0,2)
+  let (x,y) = (4,2)
   putStrLn $ "coords:" ++ show (x,y)
   putStrLn $ "cur status:" ++ show (getBoardCellValue (x,y) board)
   putStrLn $ "neighcount:" ++ show (getCellNeighbourCount (x,y) board)

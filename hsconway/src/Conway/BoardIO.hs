@@ -50,6 +50,7 @@ mkRowString :: BoardRow -> String
 mkRowString row = "|" ++ concatMap tr row ++ "|"
   where tr 0 = " "
         tr 1 = "+"
+        tr x = take 1 $ show x
 
 mkHorizRow :: String
 mkHorizRow = "+" ++ replicate boardWidth '-' ++ "+"

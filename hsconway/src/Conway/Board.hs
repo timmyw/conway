@@ -163,5 +163,5 @@ determineCellFuture 1 4 = 0
 determineCellFuture 1 5 = 0
 determineCellFuture 1 6 = 0
 determineCellFuture 0 3 = 1
-determineCellFuture _ _ = 0
+determineCellFuture c n = c
 
