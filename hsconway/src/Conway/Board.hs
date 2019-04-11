@@ -39,6 +39,8 @@ module Conway.Board
 import           Data.List
 import           System.Random
 
+import Debug.Trace
+
 -- | The width of any generation or handled boards
 boardWidth :: Int
 boardWidth = 20
@@ -133,9 +135,9 @@ createRandomBoard cnt = do
 boardIterate :: Board            -- ^ The starting state of the board
              -> Board            -- ^ The board after one complete iteration
 boardIterate board = 
-  foldr processCell' board coords
+  foldr processCell' createEmptyBoard coords
   where coords = createBoardCoords
-        processCell' (x,y) b = processCell b x y
+        processCell' (x,y) b = processCell b board x y
 
 createBoardCoords :: [(Int, Int)]
 createBoardCoords = Data.List.foldl (\acc y -> acc ++ makeRow y) [] [0..boardHeight-1]
@@ -143,15 +145,21 @@ createBoardCoords = Data.List.foldl (\acc y -> acc ++ makeRow y) [] [0..boardHei
     makeRow y = Data.List.foldl (\acc x -> acc ++ [(x,y)])  [] [0..boardWidth-1]
 
 -- | Processes a single cell.
-processCell :: Board             -- ^ The original board
+processCell :: Board             -- ^ The new board
+            -> Board             -- ^ The original board
             -> Int
             -> Int
             -> Board
-processCell buildBoard x y = setBoardCellValue newValue (x, y) buildBoard
-  where curValue   = getBoardCellValue (x, y) buildBoard
+processCell buildBoard currentBoard x y = setBoardCellValue newValue (x, y) buildBoard
+  where curValue   = getBoardCellValue (x, y) currentBoard
         newValue   = determineCellFuture curValue neighbourCount
-        neighbourCount = getCellNeighbourCount (x,y) buildBoard
+        neighbourCount = getCellNeighbourCount (x,y) currentBoard
 
+determineCellFuture' :: Integer   -- ^ Current status
+                     -> Integer   -- ^ Neighbour count
+                     -> Integer   -- ^ New status
+determineCellFuture' cur cnt = trace ("determine: " ++ show cur ++ " " ++ show cnt ++ " " ++ show (determineCellFuture cur cnt)) determineCellFuture cur cnt
+  
 determineCellFuture :: Integer   -- ^ Current status
                     -> Integer   -- ^ Neighbour count
                     -> Integer   -- ^ New status
@@ -162,6 +170,15 @@ determineCellFuture 1 3 = 1
 determineCellFuture 1 4 = 0
 determineCellFuture 1 5 = 0
 determineCellFuture 1 6 = 0
+determineCellFuture 1 7 = 0
+determineCellFuture 1 8 = 0
+determineCellFuture 0 0 = 0
+determineCellFuture 0 1 = 0
+determineCellFuture 0 2 = 0
 determineCellFuture 0 3 = 1
-determineCellFuture c n = c
+determineCellFuture 0 4 = 0
+determineCellFuture 0 5 = 0
+determineCellFuture 0 6 = 0
+determineCellFuture 0 7 = 0
+determineCellFuture 0 8 = 0
 
