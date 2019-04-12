@@ -29,7 +29,7 @@ displayBoard b = do
   mapM_ printRow (cells b)
   horizRow
   where printRow row = putStrLn $ mkRowString row
-        horizRow = putStrLn mkHorizRow
+        horizRow = putStrLn $ mkHorizRow (width b)
 
 -- | Display two boards side by side
 displayBoards :: Board
@@ -40,8 +40,7 @@ displayBoards b1 b2 = do
   mapM_ printRows $ zip (cells b1) (cells b2)
   horizRow
   where
-    printRows (r1, r2) = putStrLn $ (mkRowString r1) ++ separator ++ (mkRowString r2)
-    horizRow = putStrLn $ mkHorizRow ++ separator ++ mkHorizRow
-    topRow =  "+" ++ replicate boardWidth '-' ++ "+"
+    printRows (r1, r2) = putStrLn $ (mkRowString r1) ++ separator ++ mkRowString r2
+    horizRow = putStrLn $ mkHorizRow (width b1) ++ separator ++ mkHorizRow (width b2)
     separator = "   --   "
 

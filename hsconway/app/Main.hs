@@ -17,6 +17,8 @@ data Options = Options {
   , iterations :: Int
   , delay :: Int
   , boardFile :: String
+  , initWidth :: Int
+  , initHeight :: Int
   }
   deriving (Show, Data, Typeable)
 
@@ -27,6 +29,8 @@ options = Options {
   , iterations = 100 &= help "COUNT of how many times to run" &= typ "COUNT"
   , delay = 1000 &= help "COUNT of miliseconds between iterations" &= typ "COUNT"
   , boardFile = "" &= help "FILE to load instead of a random board" &= typ "FILE"
+  , initWidth = 20 &= help "COUNT width of the new board" &= typ "COUNT"
+  , initHeight = 20 &= help "COUNT height of the new board" &= typ "COUNT"
   }
   &= program "conway"
   &= summary "Play Conway's game of life"
@@ -79,7 +83,9 @@ main = do
   putStrLn $ "Running " ++ show its ++ " iterations"
   board <- if boardFile opts == ""
           then do outputPath <- getOutputFilename
-                  b <- createRandomBoard $ starting opts
+                  b <- createRandomBoard (initWidth opts)
+                      (initHeight opts)
+                      (starting opts)
                   saveBoard b outputPath
                   return b
           else do putStrLn $ "Loading board from " ++ boardFile opts
@@ -92,7 +98,7 @@ main' :: IO ()
 main' = do
   board <- loadBoard "patterns/blinker.conway"
   displayBoard board
-  let c = map (\x -> getCellNeighbourCount (x, 1) board) [0..boardWidth-1]
+  let c = map (\x -> getCellNeighbourCount (x, 1) board) [0..(width board)-1]
   putStrLn $ "neighcount:" ++ show c
   let (x,y) = (4,2)
   putStrLn $ "coords:" ++ show (x,y)

@@ -30,8 +30,6 @@ module Conway.Board
   , setBoardCellValue
 
   -- * Constants
-  , boardWidth
-  , boardHeight
   )
   
   where
@@ -41,14 +39,6 @@ import           System.Random
 
 import Debug.Trace
 
--- | The width of any generation or handled boards
-boardWidth :: Int
-boardWidth = 20
-
--- | The height of any generation or handled boards
-boardHeight :: Int
-boardHeight = 20
-
 -- | Stores a single row of the Board
 type BoardRow = [Integer]
 
@@ -56,9 +46,11 @@ type BoardRow = [Integer]
 A board is a list of list of ints.  Each int stores the state of the
 cell.
 -}
-newtype Board = Board {
-                   cells :: [BoardRow]
-                   }
+data Board = Board {
+  width :: Int
+  , height :: Int
+  , cells :: [BoardRow]
+  }
 
 showRow :: BoardRow -> String
 showRow = concatMap show
@@ -73,31 +65,40 @@ getBoardRow r b = cells b !! r
 -- | Set the rth row of a board
 setBoardRow :: Int -> BoardRow -> Board -> Board
 setBoardRow r newRow b =
-  if r >= 0 && r <= boardHeight
+  if r >= 0 && r <= (height b)
   then 
-    Board { cells = take r rows ++ [newRow] ++ drop (r+1) rows }
+    Board { width = width b
+          , height = height b
+          , cells = take r rows ++ [newRow] ++ drop (r+1) rows }
   else
     error $ "Row " ++ show r ++ " out of range"
   where rows = cells b
 
-getRowCellValue :: Int -> BoardRow -> Integer
-getRowCellValue x row = if x >=0 && x < boardWidth
-                        then row !! x
-                        else error $ "Width " ++ show x ++ " too large"
+getRowCellValue :: Int           -- ^ X co-ord
+                -> Int           -- ^ Max width
+                -> BoardRow      -- ^ Current board row
+                -> Integer       -- ^ Value of the cell
+getRowCellValue x maxWidth row = if x >=0 && x < maxWidth
+                                 then row !! x
+                                 else error $ "Width " ++ show x ++ " too large"
 
-setRowCellValue :: Int -> Integer -> BoardRow -> BoardRow
-setRowCellValue x newVal row =
-  if x >= 0 && x <= boardWidth
+setRowCellValue :: Int           -- ^ X co-ord
+                -> Int           -- ^ Row width
+                -> Integer       -- ^ New value
+                -> BoardRow      -- ^ Current board row
+                -> BoardRow      -- ^ Resultant board row
+setRowCellValue x maxWidth newVal row =
+  if x >= 0 && x < maxWidth
   then
     take x row ++ [newVal] ++ drop (x+1) row
   else error $ "Width " ++ show x ++ " too large"
 
 getBoardCellValue :: (Int, Int) -> Board -> Integer
-getBoardCellValue (x,y) b = getRowCellValue x (getBoardRow y b)
+getBoardCellValue (x,y) b = getRowCellValue x (width b) (getBoardRow y b)
 
 setBoardCellValue :: Integer -> (Int, Int) -> Board -> Board
 setBoardCellValue val (x,y) b = setBoardRow y newRow b
-  where newRow = setRowCellValue x val (getBoardRow y b)
+  where newRow = setRowCellValue x (width b) val (getBoardRow y b)
 
 getCellNeighbourCount :: (Int, Int) -> Board -> Integer
 getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
@@ -109,25 +110,32 @@ getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
                    else leftOne (y+1) + getBoardCellValue (x, y+1) board + rightOne (y+1)
         leftOne r = if x == 0 then 0 else getBoardCellValue (x-1, r) board
         rightOne r = if x == boardWidth-1 then 0 else getBoardCellValue (x+1, r) board
+        boardWidth = width board
 
 -- | Create an empty board (full sized but all cell statuses are
 -- 'empty')
-createEmptyBoard :: Board
-createEmptyBoard = Board { cells = replicate boardHeight mkRow }
-  where mkRow = replicate boardWidth 0
+createEmptyBoard :: Int          -- ^ Board width
+                 -> Int          -- ^ Board height
+                 -> Board        -- ^ The empty board
+createEmptyBoard w h = Board { height = h
+                             , width = w
+                             , cells = replicate h mkRow }
+  where mkRow = replicate w 0
 
 -- | Creates a randomly generated board.  Works by generating a list
 -- of random coords, and sets those to be populated.
-createRandomBoard :: Int         -- ^ The number of cells to populate
+createRandomBoard :: Int         -- ^ Board width
+                  -> Int         -- ^ Board height
+                  -> Int         -- ^ The number of cells to populate
                   -> IO Board    -- ^ The generated board
-createRandomBoard cnt = do
+createRandomBoard width' height' cnt = do
   g <- getStdGen
-  let poss  = take (cnt*2) (randomRs (0, boardWidth-1) g)
+  let poss  = take (cnt*2) (randomRs (0, width'-1) g)
   let poss' = drop cnt poss
   let pairs = zip (take cnt poss) (take cnt poss')
   let r = foldr setCell b pairs
   return r
-  where b = createEmptyBoard 
+  where b = createEmptyBoard width' height'
         setCell  = setBoardCellValue 1
 
 -- | Runs an interation over the supplied board.  Each cell is
@@ -135,14 +143,17 @@ createRandomBoard cnt = do
 boardIterate :: Board            -- ^ The starting state of the board
              -> Board            -- ^ The board after one complete iteration
 boardIterate board = 
-  foldr processCell' createEmptyBoard coords
-  where coords = createBoardCoords
+  foldr processCell' (createEmptyBoard (width board) (height board)) coords
+  where coords = createBoardCoords (width board) (height board)
         processCell' (x,y) b = processCell b board x y
 
-createBoardCoords :: [(Int, Int)]
-createBoardCoords = Data.List.foldl (\acc y -> acc ++ makeRow y) [] [0..boardHeight-1]
+createBoardCoords :: Int          -- ^ Width
+                  -> Int          -- ^ Height
+                  -> [(Int, Int)] -- ^ Co-ord list of tuples
+createBoardCoords width height = Data.List.foldl
+  (\acc y -> acc ++ makeRow y) [] [0..height-1]
   where
-    makeRow y = Data.List.foldl (\acc x -> acc ++ [(x,y)])  [] [0..boardWidth-1]
+    makeRow y = Data.List.foldl (\acc x -> acc ++ [(x,y)])  [] [0..width-1]
 
 -- | Processes a single cell.
 processCell :: Board             -- ^ The new board

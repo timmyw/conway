@@ -38,9 +38,9 @@ boardLayoutVersion = 2
 -- | Dump out the supplied board in JSON
 instance ToJSON Board where
     -- this generates a Value
-    toJSON (Board board) =
+    toJSON (Board { cells = board, width = width, height = height }) =
         object ["board" .= object
-                [ "width" .= boardWidth, "height" .= boardHeight]
+                [ "width" .= width, "height" .= height]
                , "version" .= boardLayoutVersion
                , "rows" .= board
                ]
@@ -52,8 +52,8 @@ mkRowString row = "|" ++ concatMap tr row ++ "|"
         tr 1 = "+"
         tr x = take 1 $ show x
 
-mkHorizRow :: String
-mkHorizRow = "+" ++ replicate boardWidth '-' ++ "+"
+mkHorizRow :: Int -> String
+mkHorizRow w = "+" ++ replicate w '-' ++ "+"
 
 -- | Save the supplied board to the specified file
 saveBoard :: Board
@@ -61,9 +61,11 @@ saveBoard :: Board
           -> IO ()
 saveBoard board filePath = do
   withFile filePath WriteMode (\h -> do
-                                  hPutStrLn h mkHorizRow
+                                  hPrint h (width board)
+                                  hPrint h (height board)
+                                  hPutStrLn h $ mkHorizRow (width board)
                                   mapM_ (\r -> writeRow h r) $ cells board
-                                  hPutStrLn h mkHorizRow
+                                  hPutStrLn h $ mkHorizRow (width board)
                               )
     where writeRow h r = hPutStrLn h $ mkRowString r
 
@@ -73,13 +75,15 @@ getLines = fmap lines . readFile
 loadBoard :: String -> IO Board
 loadBoard filePath = do
   allRows <- getLines filePath
-  let rows = map dropBorders $ take boardHeight $ drop 1 allRows
-  return $ foldl (\acc (y,r) -> processRow y acc r) createEmptyBoard $ zip [0..boardHeight-1] rows
+  let width' = (read (head allRows)) :: Int
+  let height' = (read (allRows !! 1)) :: Int
+  let rows = map dropBorders $ init $ drop 3 allRows
+  return $ foldl (\acc (y,r) -> processRow y acc r width') (createEmptyBoard width' height') $ zip [0..width'-1] rows
   where
     dropBorders :: String -> String
-    dropBorders r = take boardWidth $ drop 1 r
-    processRow :: Int -> Board -> String -> Board
-    processRow y board r = foldl (\acc (x,v) -> setBoardCellValue (trCell v) (x,y) acc) board $ zip [0..boardWidth-1] r
+    dropBorders r = init $ drop 1 r
+    processRow :: Int -> Board -> String -> Int -> Board
+    processRow y board r w = foldl (\acc (x,v) -> setBoardCellValue (trCell v) (x,y) acc) board $ zip [0..w-1] r
     trCell '+' = 1
     trCell ' ' = 0
 
@@ -87,6 +91,6 @@ loadBoard filePath = do
 saveBoardJson :: Board               -- ^ The board to save
               -> String              -- ^ File path to save the board to
               -> IO ()
-saveBoardJson board filePath = do
+saveBoardJson board filePath =
   writeFile filePath $ BS.unpack $ encode board
 
