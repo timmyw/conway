@@ -105,11 +105,11 @@ getCellNeighbourCount (x,y) board = rowAbove + leftOne y + rightOne y + rowBelow
   where rowAbove = if y == 0
                    then 0
                    else leftOne (y-1) + getBoardCellValue (x, y-1) board + rightOne (y-1)
-        rowBelow = if y == boardWidth-1
+        rowBelow = if y == (height board) -1
                    then 0
                    else leftOne (y+1) + getBoardCellValue (x, y+1) board + rightOne (y+1)
         leftOne r = if x == 0 then 0 else getBoardCellValue (x-1, r) board
-        rightOne r = if x == boardWidth-1 then 0 else getBoardCellValue (x+1, r) board
+        rightOne r = if x == (width board) -1 then 0 else getBoardCellValue (x+1, r) board
         boardWidth = width board
 
 -- | Create an empty board (full sized but all cell statuses are
