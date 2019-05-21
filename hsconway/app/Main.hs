@@ -19,6 +19,7 @@ data Options = Options {
   , boardFile :: String
   , initWidth :: Int
   , initHeight :: Int
+  , convertFile :: String
   }
   deriving (Show, Data, Typeable)
 
@@ -31,6 +32,7 @@ options = Options {
   , boardFile = "" &= help "FILE to load instead of a random board" &= typ "FILE"
   , initWidth = 20 &= help "COUNT width of the new board" &= typ "COUNT"
   , initHeight = 20 &= help "COUNT height of the new board" &= typ "COUNT"
+  , convertFile = "" &= help "FILE to write out board FILE to" &= typ "FILE"
   }
   &= program "conway"
   &= summary "Play Conway's game of life"
@@ -90,9 +92,14 @@ main = do
                   return b
           else do putStrLn $ "Loading board from " ++ boardFile opts
                   loadBoard $ boardFile opts
-  displayBoard board
-  Control.Concurrent.threadDelay 10000
-  doIterations board its opts
+  let outFile = convertFile opts
+  if outFile /= ""
+    then
+    saveBoard board outFile
+    else do
+      displayBoard board
+      Control.Concurrent.threadDelay 10000
+      doIterations board its opts
 
 main' :: IO ()
 main' = do

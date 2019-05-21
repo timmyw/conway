@@ -16,7 +16,6 @@ module Conway.BoardIO
     -- * Load/save the board
     loadBoard
   , saveBoard
-  , saveBoardJson
   
     -- * Display/string generation function
   , mkRowString
@@ -26,10 +25,14 @@ module Conway.BoardIO
   where
 
 --import           Control.Monad
+import           Data.Char
 import           Conway.Board
 import           Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as BS
 import           System.IO
+import           System.FilePath
+
+import Debug.Trace
 
 -- | Board structure/layout version
 boardLayoutVersion :: Int
@@ -55,11 +58,68 @@ mkRowString row = "|" ++ concatMap tr row ++ "|"
 mkHorizRow :: Int -> String
 mkHorizRow w = "+" ++ replicate w '-' ++ "+"
 
--- | Save the supplied board to the specified file
-saveBoard :: Board
-          -> String
+data FileFormat = Conway | RLE | Json | Unknown
+
+-- | Determine file format from filename
+getFileFormat :: String -> FileFormat
+getFileFormat filePath = case extension of
+  ".conway" -> Conway
+  ".rle" -> RLE
+  ".json" -> Json
+  _ -> Unknown
+  where extension =  map toLower $ snd $ splitExtension filePath
+
+-- | Save the supplied board to the specified file.  The format of the
+-- output is determined by the extension in the file path.  Currently
+-- supported formats are Conway (plain text), JSON and RLE.
+saveBoard :: Board              -- ^ The board to be saved
+          -> String             -- ^ The path to save the board to
           -> IO ()
-saveBoard board filePath = do
+saveBoard board filePath = case fileType of
+  Conway -> saveBoardConway board filePath
+  RLE -> saveBoardRLE board filePath
+  Json -> saveBoardJson board filePath
+  _ -> error $ "Unsupported file format for: " ++ filePath
+  where fileType = getFileFormat filePath
+
+-- | Save the board in RLE format
+saveBoardRLE :: Board -> String -> IO ()
+saveBoardRLE board filePath = do
+  withFile filePath WriteMode (\h -> do
+                                  hPutStrLn h $ "x = " ++ show (width board) ++ ", y = " ++ show (height board)
+                                  mapM_ (\r -> hPutStr h $ genRow r) $ cells board
+                                  hPutStrLn h "!"
+                              )
+    where
+      genRow r = case (genRow' r) of
+        (rowString, ch, count) -> if rowString == ""
+                                  then
+                                    show count ++ [conwayToRLE ch] ++ "$"
+                                  else 
+                                    rowString ++ "$"
+      genRow' r = foldl buildRow ("", 99, 0) r
+
+
+buildRow :: (String, Integer, Integer) -> Integer -> (String, Integer, Integer)
+buildRow (build, curCh, count) ch =
+  if ch == curCh
+  then (build, curCh, count+1)
+  else if curCh /= 99
+       then (build ++ newChunk, ch, 1)
+       else (build, ch, 0)
+  where newChunk = show count ++ [conwayToRLE curCh]
+
+-- | Translate a conway cell value to RLE code
+conwayToRLE :: Integer -> Char
+conwayToRLE 0 = 'b'
+conwayToRLE 1 = 'o'
+conwayToRLE _ = '*'
+
+-- | Save the board in Conway format
+saveBoardConway :: Board
+                -> String
+                -> IO ()
+saveBoardConway board filePath = do
   withFile filePath WriteMode (\h -> do
                                   hPrint h (width board)
                                   hPrint h (height board)
