@@ -1,6 +1,5 @@
 name:                conway
 version:             0.1.0.0
-github:              "https://github.com/timmyw/conway#readme"
 license:             BSD3
 author:              "Tim Whelan"
 maintainer:          "tim@zipt.co"
