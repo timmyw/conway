@@ -1,2 +1,6 @@
 _build
 dune_project
+conway
+*.o
+*.cmi
+*.cmx
