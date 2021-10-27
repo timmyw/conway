@@ -1,0 +1,19 @@
+#+TITLE: Ocaml implementation
+
+* Requirements
+
+  ~oconway~ uses the dune build system
+
+  #+begin_src sh
+opam install dune
+  #+end_src
+
+* Building and running
+
+  #+begin_src sh
+dune build
+  #+end_src
+
+  #+begin_src sh
+dune exec ./conway.exe
+  #+end_src
