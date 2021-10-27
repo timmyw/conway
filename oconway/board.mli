@@ -8,10 +8,17 @@ type row
 val to_line : row -> string
     
 (** Create an empty board. *)
-val empty : t
+val create_board : t
 
 (** Retrieve an element. *)
 val get : t -> int -> int -> int
 
 (** Dump the board out as a string *)
 val to_string : t -> string
+
+
+
+(** Debug functions
+    These won't be exposed forever *)
+
+val calc_neighbours : t -> int -> int -> int
