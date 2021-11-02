@@ -1,3 +1,4 @@
 (executable
  (name conway)
-  (libraries core))
+ (libraries core
+            curses))
