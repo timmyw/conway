@@ -6,7 +6,7 @@ type row = cell array
 
 let cell_to_char c = 
   match c with
-    | 0 -> '.'
+    | 0 -> ' '
     | 1 -> '+'
     | _ -> ' '
 
@@ -17,6 +17,8 @@ type t = row array
 
 let board_rows =20
 let board_cols = 60
+
+let get_dims = board_rows, board_cols
 
 let to_string board =
   let rows = Array.map board ~f:to_line in

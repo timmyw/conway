@@ -6,12 +6,18 @@ type row
   
 (** Get the array from a row *)
 val to_line : row -> string
-    
+
+(** Get board dimensions *)
+val get_dims : int * int
+
 (** Create an empty board. *)
 val create_board : t
 
 (** Retrieve an element. *)
 val get : t -> int -> int -> int
+
+(** Convert cell value to char *)
+val cell_to_char : int -> char
 
 (** Dump the board out as a string *)
 val to_string : t -> string
