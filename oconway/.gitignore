@@ -4,3 +4,5 @@ conway
 *.o
 *.cmi
 *.cmx
+dune-project
+work
