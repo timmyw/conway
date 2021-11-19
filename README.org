@@ -36,5 +36,5 @@
 * Implementations
 
   + Haskell (incomplete) - [[file:hsconway][hsconway]]
-  + OCaml (incomplete) - [[file:oconway][oconway]]
+  + OCaml (complete - IO outstanding) - [[file:oconway][oconway]]
   + C++ - [[file:ccpconway][cppconway]]
