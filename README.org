@@ -38,3 +38,4 @@
   + Haskell (incomplete) - [[file:hsconway][hsconway]]
   + OCaml (complete - IO outstanding) - [[file:oconway][oconway]]
   + C++ - [[file:ccpconway][cppconway]]
+  + Zig (incomplete) - [[file:zigconway][zigconway]]
